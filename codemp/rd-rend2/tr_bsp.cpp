@@ -1129,6 +1129,10 @@ static void ParseFlare( const world_t *worldData, dsurface_t *ds, drawVert_t *ve
 	flare = (srfFlare_t *)surf->data;
 	flare->surfaceType = SF_FLARE;
 
+	flare->shader = tr.flareShader;
+	if (surf->shader != tr.defaultShader)
+		flare->shader = surf->shader;
+
 	surf->data = (surfaceType_t *)flare;
 
 	for ( i = 0 ; i < 3 ; i++ ) {

@@ -64,7 +64,7 @@ typedef struct flare_s {
 
 	qboolean	inPortal;				// true if in a portal view of the scene
 	int			frameSceneNum;
-	void		*surface;
+	srfFlare_t	*surface;
 	int			fogNum;
 
 	int			fadeTime;
@@ -168,7 +168,7 @@ void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, vec3_t 
 
 	// see if a flare with a matching surface, scene, and view exists
 	for ( f = r_activeFlares ; f ; f = f->next ) {
-		if ( f->surface == surface && f->frameSceneNum == backEnd.viewParms.frameSceneNum
+		if ( f->surface == (srfFlare_t *)surface && f->frameSceneNum == backEnd.viewParms.frameSceneNum
 			&& f->inPortal == backEnd.viewParms.isPortal ) {
 			break;
 		}
@@ -185,7 +185,10 @@ void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, vec3_t 
 		f->next = r_activeFlares;
 		r_activeFlares = f;
 
-		f->surface = surface;
+		f->surface = (srfFlare_t *)surface;
+		if (f->surface && f->surface->shader == tr.defaultShader) {
+			f->surface->shader = tr.flareShader;
+		}
 		f->frameSceneNum = backEnd.viewParms.frameSceneNum;
 		f->inPortal = backEnd.viewParms.isPortal;
 		f->addedFrame = -1;
@@ -395,7 +398,10 @@ void RB_RenderFlare( flare_t *f ) {
 	iColor[1] = color[1] * fogFactors[1];
 	iColor[2] = color[2] * fogFactors[2];
 	
-	RB_BeginSurface( tr.flareShader, f->fogNum, 0 );
+	if ( f->surface )
+		RB_BeginSurface( f->surface->shader, f->fogNum, 0 );
+	else
+		RB_BeginSurface( tr.flareShader, f->fogNum, 0 );
 
 	// FIXME: use quadstamp?
 	tess.xyz[tess.numVertexes][0] = f->windowX - size;

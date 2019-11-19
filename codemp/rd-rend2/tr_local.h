@@ -1494,6 +1494,7 @@ typedef struct srfFlare_s {
 	vec3_t			origin;
 	vec3_t			normal;
 	vec3_t			color;
+	shader_t		*shader;
 } srfFlare_t;
 
 struct vertexAttribute_t;
